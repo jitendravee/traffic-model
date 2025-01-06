@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Cython debug symbols
+cython_debug/
+
+# Environment variable files
+.env
+.venv
+venv/
+traffic_env/
+ENV/
+env/
+
+# IDE specific folders and files
+.vscode/
+.idea/
+*.iml
+
+# Distribution / packaging
+.Python
+build/
+dist/
+bin/
+*.egg-info/
+
+# Testing
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Pycharm config files
+.idea/
+
+# Django / Flask migrations folder (if using Django/Flask)
+migrations/
+
+# Python virtual environment folders
+venv/
