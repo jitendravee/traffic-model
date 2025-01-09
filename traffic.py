@@ -409,17 +409,15 @@ def control_traffic():
 
         print(f"\n==> Processing Signal {current_signal + 1}")
 
-        # Start vehicle detection for the next signal
+        # Start vehicle detection for the next signal in a separate thread
         next_signal_index = (current_signal + 1) % len(VIDEO_FEEDS)
         detection_thread = threading.Thread(target=calculate_green_time, args=(next_signal_index,))
         detection_thread.start()
 
         # Green light phase for the current signal
         green_time = calculate_green_time(current_signal)
-        print(f"Signal {current_signal + 1}: Green for {green_time} seconds")
-        time.sleep(green_time - 2)  # Adjust sleep to ensure real-time API call
 
-        # Prepare signal data for API
+        # Prepare signal data for the current signal
         signal_data.append({
             "signal_id": f"6773b57ae9eed75638f07f8{3 + current_signal}",
             "red_duration": DEFAULT_RED,
@@ -427,8 +425,11 @@ def control_traffic():
             "green_duration": green_time
         })
 
-        # Calculate green time for next signal
-        next_signal_green_time = calculate_green_time(next_signal_index)
+        # Wait for the next signal's green time to be calculated in the background thread
+        detection_thread.join()
+
+        # Prepare signal data for the next signal
+        next_signal_green_time = calculate_green_time(next_signal_index)  # Now we safely calculate this in the main thread
         signal_data.append({
             "signal_id": f"6773b57ae9eed75638f07f8{3 + next_signal_index}",
             "red_duration": 0,
@@ -436,14 +437,20 @@ def control_traffic():
             "green_duration": next_signal_green_time
         })
 
+        # Send the API request after both green times are calculated
         send_to_api(signal_data)
 
+        # Green light phase for the current signal
+        print(f"Signal {current_signal + 1}: Green for {green_time} seconds")
+        time.sleep(green_time)  # Full green time for the current signal
+        
         # Yellow light phase for the current signal
         print(f"Signal {current_signal + 1}: Yellow for {DEFAULT_YELLOW} seconds")
         time.sleep(DEFAULT_YELLOW)
 
-        # Update current signal
-        current_signal = next_signal_index
+        # Update to the next signal
+        current_signal = (current_signal + 1) % len(VIDEO_FEEDS)
+
 
 # =========================
 # Main Execution
